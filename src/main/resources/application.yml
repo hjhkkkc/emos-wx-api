@@ -1,0 +1,95 @@
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    threads:
+      max: 200
+      min-spare: 30
+    connection-timeout: 5000ms
+  port: 8080
+  servlet:
+    context-path: /emos-wx-api
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://59.110.232.226:3306/emos?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true
+      username: root
+      password: abc123456
+      initial-size: 8
+      max-active: 16
+      min-idle: 8
+      max-wait: 60000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+
+  redis:
+    database: 0
+    host: 59.110.232.226
+    port: 6379
+    password: abc123456
+    jedis:
+      pool:
+        max-active: 1000
+        max-wait: -1ms
+        max-idle: 16
+        min-idle: 8
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: emos
+      authentication-database: admin
+      username: admin
+      password: abc123456
+  mail:
+    default-encoding: UTF-8
+    host: smtp.163.com
+    username: hjhkkk@163.com
+    password: Hjh010209@
+
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.example.emos.wx.db.pojo
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: info
+    com.example.emos.wx.db.dao : warn
+  pattern:
+    console: "%d{HH:mm:ss}  %-5level  %msg%n"
+
+emos:
+  jwt:
+    secret: abc123456
+    expire: 5
+    cache-expire: 10
+  face:
+    createFaceModelUrl: http://59.110.232.226:3000/create_face_model
+    checkinUrl: http://59.110.232.226:3000/checkin
+  #常用邮箱列表
+  email:
+    system: hjhkkk@163.com
+    hr: hjhkkk@163.com
+  #缓存人脸签到照片的路径
+  image-folder: /root/GoStar/images
+  code: 22B98A774C5EA3D5
+  recieveNotify: http://59.110.232.226:8080/emos-wx-api/meeting/recieveNotify
+
+workflow:
+  url: http://59.110.232.226:9090/emos-workflow
+
+
+trtc:
+  appid: 1400424799
+  key: 7cc97cb79251ca74fca688c332a457a2985e1ab8633ead3481ae936f810ae9af
+  expire: 86400
+wx:
+  app-id: wx88dc2d0b95988bcc
+  app-secret: e4c301e36765cd8fff351dd35e3da998

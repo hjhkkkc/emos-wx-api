@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emos.wx.db.dao.TbMeetingRoomDao">
+    <select id="searchMeetingRoomByScan" parameterType="int" resultType="HashMap">
+        SELECT mr.`name`,
+               CASE
+                   WHEN mr.max &lt; 20 THEN '小'
+                   WHEN mr.max &gt;=20 AND mr.max &lt; 50 THEN '中'
+                   ELSE '大'
+               END AS scale,
+               mr.max,
+               m.date,
+               DATE_FORMAT(m.start,'%H:%i') AS `start`,
+               DATE_FORMAT(m.end,'%H:%i') AS `end`,
+               m.title,
+               JSON_LENGTH(m.members) AS num,
+               (
+                    SELECT GROUP_CONCAT( DISTINCT d.dept_name separator "，" )
+                    FROM tb_user u
+                    JOIN tb_dept d ON u.dept_id=d.id
+                    WHERE u.`status`=1 AND JSON_CONTAINS ( m.members, CAST( u.id AS CHAR ) )
+               ) AS dept,
+               (
+                    SELECT CONCAT( "[", GROUP_CONCAT( JSON_OBJECT ( "name", u.name, "photo", u.photo ) SEPARATOR "," ), "]" )
+                    FROM tb_user u
+                    WHERE u.`status`=1 AND JSON_CONTAINS ( m.members, CONVERT ( u.id, CHAR ) )
+               ) AS members,
+               (
+                SELECT
+                    CONCAT( "[",
+                        GROUP_CONCAT(
+                            JSON_OBJECT ( "title", m.title,
+                                          "start", DATE_FORMAT(m.`start`,'%H:%i'),
+                                          "end", DATE_FORMAT(m.`end`,'%H:%i')
+                            ) SEPARATOR "," ),
+                        "]"
+                    )
+                   FROM tb_meeting_room mr JOIN tb_meeting m ON mr.`name` = m.place
+                   WHERE mr.id =#{meetingRoomId} AND mr.`status` = 1 AND m.date=CURRENT_DATE()
+               ) AS meetings
+        FROM tb_meeting_room mr
+        LEFT JOIN tb_meeting m ON mr.`name`=m.place AND CURRENT_DATE()=m.date AND CURRENT_TIME() BETWEEN m.`start` AND m.`end`
+        WHERE mr.id=#{meetingRoomId} AND mr.`status`=1
+    </select>
+
+</mapper>
